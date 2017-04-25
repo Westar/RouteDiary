@@ -52,6 +52,7 @@
 - (IBAction)postToTwitter:(id)sender;
 - (IBAction)postToFacebook:(id)sender;
 - (IBAction)showEmail:(id)sender;
+- (IBAction)minimizeMapView;
 
 
 

@@ -19,6 +19,9 @@
 {
     UILabel *noteLabel;
 }
+
+@property (weak, nonatomic) IBOutlet UIButton *epicCloseButton;
+
 /// handler to share routes on fb, tw or email
 
 /// YES if it should show the actionsheet to share the route on fb, tw or email
@@ -140,47 +143,29 @@
                          [self.mapView.layer setBorderColor:nil];
                          [self.mapView.layer setBorderWidth:0.0];
                      } completion:^(BOOL finished) {
-                         // zoom to the route
-                         [self.mapView addSubview:self.closeButton];
+                         self.epicCloseButton.hidden = NO;
+                         [self.view bringSubviewToFront:self.epicCloseButton];
                      }];
 }
 
 /**
  * Minize the mapView to normal size and remove the close button.
  */
-- (void)minimizeMapView
+- (IBAction)minimizeMapView
 {
     [UIView animateWithDuration:0.3
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseIn
                      animations:^{
-                         [self.closeButton removeFromSuperview];
-                         CGRect frame = CGRectMake(10.0, 50.0, 300.0, 150.0);
+                         CGRect frame = CGRectMake(10.0, 70.0, 300.0, 150.0);
                          self.mapView.frame = frame;
                          [self.mapView.layer setBorderColor:[UIColor whiteColor].CGColor];
                          [self.mapView.layer setBorderWidth:8.0];
+                         
                      } completion:^(BOOL finished) {
                          [self.view bringSubviewToFront:self.magnifierButton];
+                         self.epicCloseButton.hidden = YES;
                      }];
-}
-
-/**
- * A close button to be able to close the mapview if it's in full screen mode.
- * @return UIButton close button
- */
-- (UIButton*)closeButton
-{
-    if (!_closeButton)
-    {
-        _closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_closeButton setFrame:CGRectMake(self.view.frame.size.width - 31.0, self.view.frame.size.height - 31.0, 26.0, 26.0)];
-        [_closeButton setBackgroundImage:[UIImage imageNamed:@"closeButton.png"] forState:UIControlStateNormal];
-        [_closeButton setBackgroundImage:[UIImage imageNamed:@"closeButtonPressed.png"] forState:UIControlStateSelected];
-        [_closeButton setBackgroundImage:[UIImage imageNamed:@"closeButtonPressed.png"] forState:UIControlStateHighlighted];
-        [_closeButton setBackgroundColor:[UIColor clearColor]];
-        [_closeButton addTarget:self action:@selector(minimizeMapView) forControlEvents:UIControlEventTouchUpInside];
-    }
-    return _closeButton;
 }
 
 /**
@@ -331,7 +316,6 @@
     [self setJokeLabel:nil];
     [self setMagnifierButton:nil];
     [self setMapView:nil];
-    [self setCloseButton:nil];
 }
 
 - (void)viewDidUnload {
