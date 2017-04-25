@@ -52,6 +52,7 @@
         _locationManager.delegate = self;
         _locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
         _locationManager.distanceFilter = 1.0;
+        [_locationManager requestAlwaysAuthorization];
     }
     return _locationManager;
 }
