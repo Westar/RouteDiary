@@ -4,7 +4,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <GPX/GPX.h>
+#import "GPX.h"
 #import "Route.h"
 #import <MessageUI/MessageUI.h>
 

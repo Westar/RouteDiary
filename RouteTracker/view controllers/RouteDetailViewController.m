@@ -8,7 +8,7 @@
 #import "LocationPoint.h"
 #import <QuartzCore/QuartzCore.h>
 #import "CoordinateObject.h"
-#import <GPX/GPX.h>
+#import "GPX.h"
 #import "DataExporter.h"
 #import <Social/Social.h>
 #import <MessageUI/MessageUI.h> 
