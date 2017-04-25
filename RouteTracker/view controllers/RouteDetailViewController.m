@@ -13,7 +13,7 @@
 #import <Social/Social.h>
 #import <MessageUI/MessageUI.h> 
 
-
+#define isMiles [[NSUserDefaults standardUserDefaults] boolForKey:@"isMiles"]
 
 @interface RouteDetailViewController () <MFMailComposeViewControllerDelegate>
 {
@@ -226,10 +226,17 @@
     int minutes = (duration / 60) % 60;
     int hours = (duration / 3600);
     [self.durationLabel setText:[NSString stringWithFormat:@"%.2d:%.2d:%.2d", hours, minutes, seconds]];
-    [self.distanceLabel setText:[NSString stringWithFormat:@"%.2f km", [self.routeToDisplay.distance floatValue] / 1000.0]];
-    [self.averageSpeedLabel setText:[NSString stringWithFormat:@"%.0f km/h", [self.routeToDisplay.avgSpeed floatValue]]];
-    [self.maxSpeedLabel setText:[NSString stringWithFormat:@"%.0f km/h", [self.routeToDisplay.maxSpeed floatValue]]];
-
+    
+    if (isMiles) {
+        [self.distanceLabel setText:[NSString stringWithFormat:@"%.2f miles", [self.routeToDisplay.distance floatValue] / 1000.0 * 0.62137119]];
+        [self.averageSpeedLabel setText:[NSString stringWithFormat:@"%.0f mph", [self.routeToDisplay.avgSpeed floatValue] * 0.62137119]];
+        [self.maxSpeedLabel setText:[NSString stringWithFormat:@"%.0f mph", [self.routeToDisplay.maxSpeed floatValue] * 0.62137119]];
+        
+    } else {
+        [self.distanceLabel setText:[NSString stringWithFormat:@"%.2f km", [self.routeToDisplay.distance floatValue] / 1000.0]];
+        [self.averageSpeedLabel setText:[NSString stringWithFormat:@"%.0f km/h", [self.routeToDisplay.avgSpeed floatValue]]];
+        [self.maxSpeedLabel setText:[NSString stringWithFormat:@"%.0f km/h", [self.routeToDisplay.maxSpeed floatValue]]];
+    }
 
     //[self.view setBackgroundColor:RGB(250.0, 250.0, 250.0)];
     [self drawRouteOnMap];

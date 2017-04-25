@@ -38,6 +38,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *durationLabel;
 /// label to display the distance
 @property (weak, nonatomic) IBOutlet UILabel *distanceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *unitLabel;
 
 @property (strong, nonatomic) IBOutlet UIImageView *currentSpeedImage;
 

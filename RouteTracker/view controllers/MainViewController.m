@@ -11,6 +11,8 @@
 #import "CrumbPathView.h"
 #import "CoordinateObject.h"
 
+#define isMiles [[NSUserDefaults standardUserDefaults] boolForKey:@"isMiles"]
+
 @interface MainViewController ()
 /// timer to measure the elapsed time
 @property (nonatomic, strong) NSTimer *durationTimer;
@@ -41,6 +43,32 @@
 @implementation MainViewController
 
 @synthesize currentSpeedImage=_currentSpeedImage;
+
+// Switch km/h to miles/h
+- (IBAction)swithButtonPressed:(id)sender {
+    BOOL isMilesActive = [[NSUserDefaults standardUserDefaults] boolForKey:@"isMiles"];
+    
+    if (isMilesActive) {
+        [[NSUserDefaults standardUserDefaults] setBool:NO
+                                                forKey:@"isMiles"];
+        [self.unitLabel setText:@"km/h"];
+        self.maxSpeed = 0.0;
+        
+        if (!self.isTracking) {
+            [self resetLabels];
+        }
+        
+    } else {
+        [[NSUserDefaults standardUserDefaults] setBool:YES
+                                                forKey:@"isMiles"];
+        [self.unitLabel setText:@"mph"];
+        self.maxSpeed = 0.0;
+        
+        if (!self.isTracking) {
+            [self resetLabels];
+        }
+    }
+}
 
 /**
  * Start tracking the user's movement, or if tracking is enabled pause tracking.
@@ -139,17 +167,37 @@
 - (void)saveRoute
 {
     self.endDate = [NSDate date];
-    [[CoreDataHandler sharedInstance] saveRouteWithStartTime:self.startDate
-                                                     endTime:self.endDate
-                                                    duration:self.totalDuration
-                                                      points:self.locationPoints
-                                                    avgSpeed:self.avgSpeed
-                                                    maxSpeed:self.maxSpeed
-                                                    distance:self.totalDistance
-                                         withCompletionBlock:^{
-                                             [self resetValues];
-                                             [self resetLabels];
-    }];
+    
+    if (isMiles) {
+        float epicAvgSpeed = self.avgSpeed * 1.60934f;
+        float epicMaxSpeed = self.maxSpeed * 1.60934f;
+        
+        [[CoreDataHandler sharedInstance] saveRouteWithStartTime:self.startDate
+                                                         endTime:self.endDate
+                                                        duration:self.totalDuration
+                                                          points:self.locationPoints
+                                                        avgSpeed:epicAvgSpeed
+                                                        maxSpeed:epicMaxSpeed
+                                                        distance:self.totalDistance
+                                             withCompletionBlock:^{
+                                                 [self resetValues];
+                                                 [self resetLabels];
+                                             }];
+        
+    } else {
+        [[CoreDataHandler sharedInstance] saveRouteWithStartTime:self.startDate
+                                                         endTime:self.endDate
+                                                        duration:self.totalDuration
+                                                          points:self.locationPoints
+                                                        avgSpeed:self.avgSpeed
+                                                        maxSpeed:self.maxSpeed
+                                                        distance:self.totalDistance
+                                             withCompletionBlock:^{
+                                                 [self resetValues];
+                                                 [self resetLabels];
+                                             }];
+    }
+
 }
 
 /**
@@ -174,11 +222,22 @@
  */
 - (void)resetLabels
 {
-    [self.currentSpeedLabel setText:@"0"];
-    [self.avgSpeedLabel setText:@"0 km/h"];
-    [self.maxSpeedLabel setText:@"0 km/h"];
-    [self.durationLabel setText:@"00:00:00"];
-    [self.distanceLabel setText:@"0 m"];
+    if (isMiles) {
+        [self.currentSpeedLabel setText:@"0"];
+        [self.avgSpeedLabel setText:@"0 mph"];
+        [self.maxSpeedLabel setText:@"0 mph"];
+        [self.durationLabel setText:@"00:00:00"];
+        [self.distanceLabel setText:@"0 miles"];
+        [self.unitLabel setText:@"mph"];
+        
+    } else {
+        [self.currentSpeedLabel setText:@"0"];
+        [self.avgSpeedLabel setText:@"0 km/h"];
+        [self.maxSpeedLabel setText:@"0 km/h"];
+        [self.durationLabel setText:@"00:00:00"];
+        [self.distanceLabel setText:@"0 m"];
+        [self.unitLabel setText:@"km/h"];
+    }
 }
 
 #pragma mark - location handler delegate method
@@ -187,32 +246,51 @@
  * @param location the new location info
  * @param distanceDelta the new distance value
  */
-- (void)updateLabelsWithLocationData:(CLLocation *)location andDistanceDelta:(CLLocationDistance)distanceDelta
-{
-    if (location.speed > 0.0)
-    {
-        [self.currentSpeedLabel setText:[NSString stringWithFormat:@"%.0f", location.speed * 3.6]];
-    }
-    else
-    {
+- (void)updateLabelsWithLocationData:(CLLocation *)location
+                    andDistanceDelta:(CLLocationDistance)distanceDelta {
+    if (location.speed > 0.0) {
+        
+        
+        if (isMiles) {
+            [self.currentSpeedLabel setText:[NSString stringWithFormat:@"%.0f", location.speed * 2.23693629]];
+        } else {
+            [self.currentSpeedLabel setText:[NSString stringWithFormat:@"%.0f", location.speed * 3.6]];
+        }
+        
+    } else {
         [self.currentSpeedLabel setText:@"0"];
     }
-    if (self.isTracking)
-    {
-        [self checkMaximumSpeed:location.speed * 3.6];
-        [self.maxSpeedLabel setText:[NSString stringWithFormat:@"%.0f km/h", self.maxSpeed]];
+    
+    if (self.isTracking) {
+        if (isMiles) {
+            [self checkMaximumSpeed:location.speed * 2.23693629];
+            [self.maxSpeedLabel setText:[NSString stringWithFormat:@"%.0f mph", self.maxSpeed]];
+            
+        } else {
+            [self checkMaximumSpeed:location.speed * 3.6];
+            [self.maxSpeedLabel setText:[NSString stringWithFormat:@"%.0f km/h", self.maxSpeed]];
+        }
+        
 
         self.totalDistance += distanceDelta;
-        if (self.totalDistance > 1000.0)
-        {
-            [self.distanceLabel setText:[NSString stringWithFormat:@"%.2f km", self.totalDistance / 1000.0]];
+        
+        if (isMiles) {
+            [self.distanceLabel setText:[NSString stringWithFormat:@"%.2f miles", self.totalDistance * 0.62137119 / 1000.0]];
+            
+        } else {
+            if (self.totalDistance > 1000.0) {
+                [self.distanceLabel setText:[NSString stringWithFormat:@"%.2f km", self.totalDistance / 1000.0]];
+            } else {
+                [self.distanceLabel setText:[NSString stringWithFormat:@"%.0f m", self.totalDistance]];
+            }
         }
-        else
-        {
-            [self.distanceLabel setText:[NSString stringWithFormat:@"%.0f m", self.totalDistance]];
-        }
+        
+        if (isMiles) {
+            [self.avgSpeedLabel setText:[NSString stringWithFormat:@"%.0f mph", [self updateAvgSpeed]]];
 
-        [self.avgSpeedLabel setText:[NSString stringWithFormat:@"%.0f km/h", [self updateAvgSpeed]]];
+        } else {
+            [self.avgSpeedLabel setText:[NSString stringWithFormat:@"%.0f km/h", [self updateAvgSpeed]]];
+        }
 
         /// add a new coordinate object with timestamp
         CoordinateObject *coordinateO = [[CoordinateObject alloc] init];
@@ -225,9 +303,7 @@
         [self.mapView setCenterCoordinate:location.coordinate animated:YES];
         [self.mapView.userLocation setCoordinate:location.coordinate];
         [self.mapView addAnnotation:self.mapView.userLocation];
-    }
-    else
-    {
+    } else {
         MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(location.coordinate, 1000, 1000);
         [self.mapView setRegion:region animated:YES];
         [self.mapView.userLocation setCoordinate:location.coordinate];
@@ -259,7 +335,7 @@
  * Create a string to make time easily readable
  * @return NSString string to return
  */
-- (NSString*)formatDurationIntoString
+- (NSString *)formatDurationIntoString
 {
     int seconds = self.totalDuration % 60;
     int minutes = (self.totalDuration / 60) % 60;
@@ -287,7 +363,13 @@
 {
 	if (self.totalDuration > 10) // wait couple of seconds till updating the avg speed, since it would show an invalid data
     {
-        float averageSpeed = (self.totalDistance / self.totalDuration) * 3.6;
+        float averageSpeed;
+        if (isMiles) {
+            averageSpeed = (self.totalDistance / self.totalDuration) * 2.23693629;
+        } else {
+            averageSpeed = (self.totalDistance / self.totalDuration) * 3.6;
+        }
+        
         self.avgSpeed = averageSpeed;
         if (self.avgSpeed < self.maxSpeed)
         {

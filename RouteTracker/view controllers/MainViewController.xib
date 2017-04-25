@@ -24,6 +24,7 @@
                 <outlet property="routeDiary" destination="41" id="42"/>
                 <outlet property="startButton" destination="7" id="14"/>
                 <outlet property="stopButton" destination="6" id="15"/>
+                <outlet property="unitLabel" destination="32" id="Z9Y-A5-knE"/>
                 <outlet property="view" destination="1" id="3"/>
             </connections>
         </placeholder>
@@ -197,6 +198,13 @@
                             <color key="textColor" red="0.15424048900604248" green="0.17809949815273285" blue="0.21513450145721436" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
+                        <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="pal-qm-bT4" userLabel="SwitchButton">
+                            <rect key="frame" x="113" y="0.0" width="95" height="99"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <connections>
+                                <action selector="swithButtonPressed:" destination="-1" eventType="touchUpInside" id="imn-94-0qy"/>
+                            </connections>
+                        </button>
                     </subviews>
                     <color key="backgroundColor" red="0.11526347696781158" green="0.13762149214744568" blue="0.16923931241035461" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                 </view>

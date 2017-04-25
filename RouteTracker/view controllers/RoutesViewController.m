@@ -11,6 +11,8 @@
 #import "NSDate+Helper.h"
 #import "DataExporter.h"
 
+#define isMiles [[NSUserDefaults standardUserDefaults] boolForKey:@"isMiles"]
+
 @interface RoutesViewController ()
 /// dataexporter
 @property (nonatomic, strong) DataExporter *dataExp;
@@ -285,9 +287,17 @@
     int minutes = (duration / 60) % 60;
     int hours = (duration / 3600);
     [cell.durationLabel setText:[NSString stringWithFormat:@"%.2d:%.2d:%.2d", hours, minutes, seconds]];
-    [cell.distanceLabel setText:[NSString stringWithFormat:@"%.2f km", [route.distance floatValue] / 1000.0]];
-    [cell.avgSpeedLabel setText:[NSString stringWithFormat:@"avg. speed: %.0f km/h", [route.avgSpeed floatValue]]];
-    [cell.maxSpeedLabel setText:[NSString stringWithFormat:@"max. speed: %.0f km/h", [route.maxSpeed floatValue]]];
+    
+    if (isMiles) {
+        [cell.distanceLabel setText:[NSString stringWithFormat:@"%.2f miles", [route.distance floatValue] / 1000.0 * 0.62137119]];
+        [cell.avgSpeedLabel setText:[NSString stringWithFormat:@"avg. speed: %.0f mph", [route.avgSpeed floatValue] * 0.62137119]];
+        [cell.maxSpeedLabel setText:[NSString stringWithFormat:@"max. speed: %.0f mph", [route.maxSpeed floatValue] * 0.62137119]];
+    
+    } else {
+        [cell.distanceLabel setText:[NSString stringWithFormat:@"%.2f km", [route.distance floatValue] / 1000.0]];
+        [cell.avgSpeedLabel setText:[NSString stringWithFormat:@"avg. speed: %.0f km/h", [route.avgSpeed floatValue]]];
+        [cell.maxSpeedLabel setText:[NSString stringWithFormat:@"max. speed: %.0f km/h", [route.maxSpeed floatValue]]];
+    }
 }
 
 /**
