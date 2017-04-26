@@ -44,7 +44,7 @@
         _fetchController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
                                                                managedObjectContext:context
                                                                  sectionNameKeyPath:@"sortDate"
-                                                                          cacheName:@"Routes"];
+                                                                          cacheName:nil];
         _fetchController.delegate = self;
     }
     return _fetchController;
